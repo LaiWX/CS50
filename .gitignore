@@ -1,0 +1,5 @@
+# Python虚拟环境
+.venv
+
+# Python临时文件
+**/__pycache__
