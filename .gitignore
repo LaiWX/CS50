@@ -3,6 +3,3 @@
 
 # Python临时文件
 **/__pycache__
-
-# vscode调试配置
-.vscode/launch.json

@@ -3,5 +3,6 @@
     "*": false
   },
   "github.copilot.nextEditSuggestions.enabled": false,
-  "git.terminalAuthentication": false
+  "git.terminalAuthentication": false,
+  "python.terminal.executeInFileDir": true,
 }
