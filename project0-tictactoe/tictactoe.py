@@ -138,65 +138,40 @@ def minimax(board):
     if terminal(board):
         return None
 
-    if player(board) == X:
-        max_value = -math.inf
-        max_action = None
-        for action in actions(board):
-            new_board = result(board, action)
-            min_value = _min_value(new_board, max_value, math.inf)
-            if min_value > max_value:
-                max_value = min_value
-                max_action = action
-        return max_action
-    elif player(board) == O:
-        min_value = math.inf
-        min_action = None
-        for action in actions(board):
-            new_board = result(board, action)
-            max_value = _max_value(new_board, -math.inf, min_value)
-            if max_value < min_value:
-                min_value = max_value
-                min_action = action
-        return min_action
-    else:
-        return None
+    _, action = _alpha_beta(board, -math.inf, math.inf)
 
+    return action
 
-def _max_value(board, alpha, beta):
+def _alpha_beta(board, alpha, beta):
     """
-    Returns the max value on the board.
+    return (value, action) on this board.
     """
+
     if terminal(board):
-        return utility(board)
+        return utility(board), None
 
-    all_actions = actions(board)
+    current_player = player(board)
+    best_action = None
 
-    value = -math.inf
-    for action in all_actions:
-        new_board = result(board, action)
-        value = max(value, _min_value(new_board, alpha, beta))
-        alpha = max(alpha, value)
-        if value >= beta:
-            return value
-
-    return value
-
-
-def _min_value(board, alpha, beta):
-    """
-    Returns the min value on the board.
-    """
-    if terminal(board):
-        return utility(board)
+    if current_player == X:
+        value = -math.inf
+        for action in actions(board):
+            child_value, _ = _alpha_beta(result(board, action), alpha, beta)
+            if child_value > value:
+                value = child_value
+                best_action = action
+            alpha = max(alpha, value)
+            if alpha >= beta:
+                break
+    else: # player == O
+        value = math.inf
+        for action in actions(board):
+            child_value, _ = _alpha_beta(result(board, action), alpha, beta)
+            if child_value < value:
+                value = child_value
+                best_action = action
+            beta = min(beta, value)
+            if alpha >= beta:
+                break
     
-    all_actions = actions(board)
-
-    value = math.inf
-    for action in all_actions:
-        new_board = result(board, action)
-        value = min(value, _max_value(new_board, alpha, beta))
-        beta = min(beta, value)
-        if value <= alpha:
-            return value
-    
-    return value
+    return value, best_action
