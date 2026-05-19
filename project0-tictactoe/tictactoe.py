@@ -143,7 +143,7 @@ def minimax(board):
         max_action = None
         for action in actions(board):
             new_board = result(board, action)
-            min_value = _min_value(new_board, max_value)
+            min_value = _min_value(new_board, max_value, math.inf)
             if min_value > max_value:
                 max_value = min_value
                 max_action = action
@@ -153,7 +153,7 @@ def minimax(board):
         min_action = None
         for action in actions(board):
             new_board = result(board, action)
-            max_value = _max_value(new_board, min_value)
+            max_value = _max_value(new_board, -math.inf, min_value)
             if max_value < min_value:
                 min_value = max_value
                 min_action = action
@@ -162,7 +162,7 @@ def minimax(board):
         return None
 
 
-def _max_value(board, curr_min_value):
+def _max_value(board, alpha, beta):
     """
     Returns the max value on the board.
     """
@@ -171,17 +171,18 @@ def _max_value(board, curr_min_value):
 
     all_actions = actions(board)
 
-    max_value = -math.inf
+    value = -math.inf
     for action in all_actions:
         new_board = result(board, action)
-        max_value = max(max_value, _min_value(new_board, max_value))
-        if max_value > curr_min_value:
-            return max_value
+        value = max(value, _min_value(new_board, alpha, beta))
+        alpha = max(alpha, value)
+        if value >= beta:
+            return value
 
-    return max_value
+    return value
 
 
-def _min_value(board, curr_max_value):
+def _min_value(board, alpha, beta):
     """
     Returns the min value on the board.
     """
@@ -190,11 +191,12 @@ def _min_value(board, curr_max_value):
     
     all_actions = actions(board)
 
-    min_value = math.inf
+    value = math.inf
     for action in all_actions:
         new_board = result(board, action)
-        min_value = min(min_value, _max_value(new_board, min_value))
-        if min_value < curr_max_value:
-            return min_value
+        value = min(value, _max_value(new_board, alpha, beta))
+        beta = min(beta, value)
+        if value <= alpha:
+            return value
     
-    return min_value
+    return value
