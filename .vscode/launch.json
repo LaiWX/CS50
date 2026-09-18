@@ -1,19 +1,21 @@
 {
-    // 使用 IntelliSense 了解相关属性。 
+    // 使用 IntelliSense 了解相关属性。
     // 悬停以查看现有属性的描述。
     // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python 调试程序: 当前文件",
+            "name": "调试当前文件（noVNC）",
             "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
             "cwd": "${fileDirname}",
+            "preLaunchTask": "确保 noVNC 可用",
             "env": {
-                "DISPLAY": ":1"
-            },
+                "DISPLAY": ":1",
+                "SDL_AUDIODRIVER": "dummy"
+            }
         }
     ]
 }

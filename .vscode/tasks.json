@@ -1,0 +1,34 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "确保 noVNC 可用",
+      "type": "shell",
+      "command": "${workspaceFolder}/.vscode/ensure-novnc.sh",
+      "isBackground": true,
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": {
+        "owner": "novnc",
+        "pattern": {
+          "regexp": "^noVNC 启动失败: (.*)$",
+          "message": 1
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^正在准备 noVNC$",
+          "endsPattern": "^noVNC 已就绪:"
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": false
+      },
+      "runOptions": {
+        "instanceLimit": 1
+      }
+    }
+  ]
+}

@@ -5,4 +5,15 @@
   "github.copilot.nextEditSuggestions.enabled": false,
   "git.terminalAuthentication": false,
   "python.terminal.executeInFileDir": true,
+  "remote.autoForwardPorts": true,
+  "remote.autoForwardPortsSource": "hybrid",
+  "remote.restoreForwardedPorts": true,
+  "remote.portsAttributes": {
+    "6080": {
+      "label": "noVNC",
+      "onAutoForward": "openBrowserOnce",
+      "protocol": "http",
+      "requireLocalPort": true
+    }
+  }
 }
