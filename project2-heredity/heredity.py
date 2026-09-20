@@ -128,6 +128,77 @@ def powerset(s):
     ]
 
 
+def _genotype(one_gene, two_genes, name):
+    if name in one_gene:
+        gene = 1
+    elif name in two_genes:
+        gene = 2
+    else:
+        gene = 0
+    return gene
+
+
+def _genotype_prob(people, one_gene, two_genes, name):
+    """
+    Return the conditional probability
+    that the given name has this genotype.
+    """
+    genotype = _genotype(one_gene, two_genes, name)
+
+    father = people[name]["father"]
+    mother = people[name]["mother"]
+
+    if father is None:
+        prob = PROBS["gene"][genotype]
+    else:
+        genetic_from_father = _pass_gene_probability(one_gene, two_genes, father)
+        genetic_from_mother = _pass_gene_probability(one_gene, two_genes, mother)
+
+        if genotype == 0:
+            prob = (1 - genetic_from_father) * (1 - genetic_from_mother)
+        elif genotype == 1:
+            prob = (
+                genetic_from_father * (1 - genetic_from_mother)
+                + (1 - genetic_from_father) * genetic_from_mother
+            )
+        else:
+            prob = genetic_from_father * genetic_from_mother
+
+    return prob
+
+
+def _pass_gene_probability(one_gene, two_genes, name):
+    """
+    Return the probability that the given name
+    passes a disease-causing gene to his children.
+    """
+    genotype = _genotype(one_gene, two_genes, name)
+
+    if genotype == 0:
+        return PROBS["mutation"]
+    elif genotype == 1:
+        return 0.5
+    else:
+        return (1 - PROBS["mutation"])
+
+
+def _genotype_joint_prob(people, one_gene, two_genes):
+    joint_prob = 1
+
+    for name in people:
+        joint_prob *= _genotype_prob(people, one_gene, two_genes, name)
+
+    return joint_prob
+
+
+def _trait_joint_prob_when_genotype(people, one_gene, two_genes, have_trait):
+    trait_joint_prob = 1
+    for name in people:
+        gene = _genotype(one_gene, two_genes, name)
+        trait_joint_prob *= PROBS["trait"][gene][name in have_trait]
+    return trait_joint_prob
+
+
 def joint_probability(people, one_gene, two_genes, have_trait):
     """
     Compute and return a joint probability.
@@ -139,7 +210,10 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         * everyone in set `have_trait` has the trait, and
         * everyone not in set` have_trait` does not have the trait.
     """
-    raise NotImplementedError
+    return (
+        _genotype_joint_prob(people, one_gene, two_genes)
+        * _trait_joint_prob_when_genotype(people, one_gene, two_genes, have_trait)
+    )
 
 
 def update(probabilities, one_gene, two_genes, have_trait, p):
@@ -149,7 +223,16 @@ def update(probabilities, one_gene, two_genes, have_trait, p):
     Which value for each distribution is updated depends on whether
     the person is in `have_gene` and `have_trait`, respectively.
     """
-    raise NotImplementedError
+    for person in probabilities:
+        genotype = _genotype(one_gene, two_genes, person)
+        probabilities[person]["gene"][genotype] += p
+        probabilities[person]["trait"][person in have_trait] += p
+
+
+def _normalize_dict(source_dict: dict):
+    normalization_factor = sum(source_dict.values())
+    for key in source_dict:
+        source_dict[key] /= normalization_factor
 
 
 def normalize(probabilities):
@@ -157,7 +240,9 @@ def normalize(probabilities):
     Update `probabilities` such that each probability distribution
     is normalized (i.e., sums to 1, with relative proportions the same).
     """
-    raise NotImplementedError
+    for person in probabilities:
+        _normalize_dict(probabilities[person]["gene"])
+        _normalize_dict(probabilities[person]["trait"])
 
 
 if __name__ == "__main__":
