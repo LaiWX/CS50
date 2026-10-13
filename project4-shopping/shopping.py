@@ -59,7 +59,73 @@ def load_data(filename):
     labels should be the corresponding list of labels, where each label
     is 1 if Revenue is true, and 0 otherwise.
     """
-    raise NotImplementedError
+    import pandas as pd
+
+    data = pd.read_csv(filename, dtype=str)
+
+    int_columns = [
+        'Administrative', 'Informational', 'ProductRelated', 
+        'OperatingSystems', 'Browser', 'Region', 'TrafficType'
+    ]
+
+    float_columns = [
+        'Administrative_Duration', 'Informational_Duration',
+        'ProductRelated_Duration', 'BounceRates',
+        'ExitRates', 'PageValues', 'SpecialDay'
+    ]
+
+    data[int_columns] = data[int_columns].astype(int)
+    data[float_columns] = data[float_columns].astype(float)
+
+    data['Revenue'] = data['Revenue'].map({
+        'TRUE': 1,
+        'FALSE': 0,
+    }).astype(int)
+
+    month_order = ['Jan', 'Feb', 'Mar', 'Apr',
+                   'May', 'June', 'Jul', 'Aug',
+                   'Sep', 'Oct', 'Nov', 'Dec']
+    data['Month'] = data['Month'].map(
+        lambda month: month_order.index(month)
+    ).astype(int)
+
+    data['VisitorType'] = data['VisitorType'].map(
+        lambda x: 1 if x == 'Returning_Visitor' else 0
+    ).astype(int)
+
+    data['Weekend'] = data['Weekend'].map({
+        'TRUE': 1,
+        'FALSE': 0,
+    }).astype(int)
+
+    evidence_columns = [
+        'Administrative',
+        'Administrative_Duration',
+        'Informational',
+        'Informational_Duration',
+        'ProductRelated',
+        'ProductRelated_Duration',
+        'BounceRates',
+        'ExitRates',
+        'PageValues',
+        'SpecialDay',
+        'Month',
+        'OperatingSystems',
+        'Browser',
+        'Region',
+        'TrafficType',
+        'VisitorType',
+        'Weekend',
+    ]
+
+    evidence = [
+        list(row)
+        for row in data[evidence_columns].itertuples(index=False, name=None)
+    ]
+
+    labels = data['Revenue'].tolist()
+
+    return evidence, labels
 
 
 def train_model(evidence, labels):
@@ -67,7 +133,9 @@ def train_model(evidence, labels):
     Given a list of evidence lists and a list of labels, return a
     fitted k-nearest neighbor model (k=1) trained on the data.
     """
-    raise NotImplementedError
+    model = KNeighborsClassifier(n_neighbors=1)
+    model.fit(X=evidence, y=labels)
+    return model
 
 
 def evaluate(labels, predictions):
@@ -85,7 +153,25 @@ def evaluate(labels, predictions):
     representing the "true negative rate": the proportion of
     actual negative labels that were accurately identified.
     """
-    raise NotImplementedError
+    positive_count = 0
+    negative_count = 0
+    true_positive_count = 0
+    true_negative_count = 0
+
+    for label, prediction in zip(labels, predictions):
+        if label == 1:
+            positive_count += 1
+            if prediction == 1:
+                true_positive_count += 1
+        else:
+            negative_count += 1
+            if prediction == 0:
+                true_negative_count += 1
+    
+    sensitivity = 1.0 * true_positive_count / positive_count
+    specificity = 1.0 * true_negative_count / negative_count
+
+    return sensitivity, specificity
 
 
 if __name__ == "__main__":
