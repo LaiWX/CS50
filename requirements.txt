@@ -1,3 +1,6 @@
 pygame
-scikit-learn
+numpy
 pandas
+scikit-learn
+opencv-python
+tensorflow
